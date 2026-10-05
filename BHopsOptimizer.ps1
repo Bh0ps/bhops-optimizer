@@ -15,15 +15,17 @@ param(
     [string]$ResponsePath,
     [switch]$Demo,
     [switch]$SmokeTest,
-    [string]$ScreenshotPath
+    [string]$ScreenshotPath,
+    [ValidateSet('Overview','Network','System','Gaming','Diagnostics','Drivers','Backups')][string]$PreviewPage='Overview'
 )
 $ErrorActionPreference = 'Stop'
 $script:AppRoot = $PSScriptRoot
-$script:AppVersion = '0.1.0'
+$script:AppVersion = '0.2.0'
 Import-Module (Join-Path $PSScriptRoot 'src\BHopsOptimizer.Core.psd1') -Force -DisableNameChecking
 Import-Module (Join-Path $PSScriptRoot 'src\BHopsOptimizer.System.psm1') -Force -DisableNameChecking
 Import-Module (Join-Path $PSScriptRoot 'src\BHopsOptimizer.Drivers.psm1') -Force -DisableNameChecking
 Import-Module (Join-Path $PSScriptRoot 'src\BHopsOptimizer.Worker.psm1') -Force -DisableNameChecking
+Import-Module (Join-Path $PSScriptRoot 'src\BHopsOptimizer.Presentation.psm1') -Force -DisableNameChecking
 
 function Test-BhoAdministrator {
     $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
@@ -64,6 +66,10 @@ function Invoke-BhoOperation {
             $snapshot = Get-BhoSnapshot -AdapterId $Arguments.AdapterId
             return @(Get-BhoTuningPlan -Snapshot $snapshot -Options @($Arguments.Options))
         }
+        'NetworkPreview' {
+            $snapshot=Get-BhoSnapshot -AdapterId $Arguments.AdapterId
+            return [pscustomobject]@{Snapshot=$snapshot;Plan=@(Get-BhoTuningPlan -Snapshot $snapshot -Options @($Arguments.Options))}
+        }
         'NetworkApply' { return Invoke-BhoApply -AdapterId $Arguments.AdapterId -Options @($Arguments.Options) -StateRoot $StateRoot -WhatIf:([bool]$Arguments.DryRun) -Confirm:$false }
         'NetworkRestore' { return Restore-BhoBackup -Path $Arguments.BackupPath -StateRoot $StateRoot -WhatIf:([bool]$Arguments.DryRun) -Confirm:$false }
         'SystemPlan' { return @(Get-BhoSystemPlan -Ids @($Arguments.Ids)) }
@@ -98,7 +104,7 @@ if ($Action -eq 'Worker') {
 if ($Action -eq 'Gui') {
     if ([Threading.Thread]::CurrentThread.ApartmentState -ne 'STA') { throw 'Start the UI with Windows PowerShell -STA, Start-BHopsOptimizer.cmd, or the portable EXE.' }
     . (Join-Path $PSScriptRoot 'src\BHopsOptimizer.UI.ps1')
-    Show-BhoWindow -Demo:$Demo -SmokeTest:$SmokeTest -ScreenshotPath $ScreenshotPath
+    Show-BhoWindow -Demo:$Demo -SmokeTest:$SmokeTest -ScreenshotPath $ScreenshotPath -PreviewPage $PreviewPage
     exit 0
 }
 if ($Options.Count -eq 1 -and $Options[0].Contains(',')) { $Options = $Options[0].Split(',') }

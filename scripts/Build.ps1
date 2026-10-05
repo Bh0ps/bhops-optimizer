@@ -1,8 +1,11 @@
 ﻿#requires -Version 5.1
 [CmdletBinding()]
-param([string]$Version='0.1.0',[string]$OutputDirectory)
+param([string]$Version='0.2.0',[string]$OutputDirectory)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path $PSScriptRoot -Parent
+$nativePowerShell=Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+& $nativePowerShell -NoProfile -STA -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'BrandAssets.ps1')
+if($LASTEXITCODE -ne 0){throw 'Brand icon generation failed.'}
 $dist=if($OutputDirectory){[IO.Path]::GetFullPath($OutputDirectory)}else{Join-Path $repoRoot 'dist'}
 New-Item -ItemType Directory -Path $dist -Force | Out-Null
 $stage=Join-Path $repoRoot ('work\build-'+[guid]::NewGuid().ToString('N'))
@@ -10,6 +13,7 @@ New-Item -ItemType Directory -Path (Join-Path $stage 'src') -Force | Out-Null
 try {
     Copy-Item -LiteralPath (Join-Path $repoRoot 'BHopsOptimizer.ps1') -Destination $stage
     Copy-Item -Path (Join-Path $repoRoot 'src\*') -Destination (Join-Path $stage 'src')
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'assets') -Destination $stage -Recurse
     Copy-Item -LiteralPath (Join-Path $repoRoot 'LICENSE') -Destination $stage
     $payload=Join-Path $dist 'BHopsOptimizer.payload.zip'
     Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $payload -Force
@@ -18,13 +22,14 @@ try {
     $automation=Get-ChildItem -LiteralPath (Join-Path $env:SystemRoot 'Microsoft.NET\assembly\GAC_MSIL\System.Management.Automation') -Recurse -Filter 'System.Management.Automation.dll' | Select-Object -First 1
     if(-not $automation){throw 'Windows PowerShell 5.1 automation assembly is unavailable.'}
     $exe=Join-Path $dist 'BHopsOptimizer.exe'
-    & $compiler /nologo /target:winexe /platform:x64 /optimize+ /warn:4 ('/out:'+$exe) ('/resource:'+$payload+',BHopsOptimizer.payload.zip') ('/reference:'+$automation.FullName) /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll (Join-Path $PSScriptRoot 'Launcher.cs')
+    & $compiler /nologo /target:winexe /platform:x64 /optimize+ /warn:4 ('/out:'+$exe) ('/win32icon:'+(Join-Path $repoRoot 'assets\app.ico')) ('/resource:'+$payload+',BHopsOptimizer.payload.zip') ('/reference:'+$automation.FullName) /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll (Join-Path $PSScriptRoot 'Launcher.cs')
     if($LASTEXITCODE -ne 0){throw 'Launcher compilation failed.'}
     $portable=Join-Path $stage 'portable'
     New-Item -ItemType Directory -Path $portable -Force | Out-Null
     Copy-Item -LiteralPath $exe,(Join-Path $repoRoot 'LICENSE') -Destination $portable
     if(Test-Path -LiteralPath (Join-Path $repoRoot 'README.md')){Copy-Item -LiteralPath (Join-Path $repoRoot 'README.md') -Destination $portable}
     if(Test-Path -LiteralPath (Join-Path $repoRoot 'docs')){Copy-Item -LiteralPath (Join-Path $repoRoot 'docs') -Destination $portable -Recurse}
+    Copy-Item -LiteralPath (Join-Path $repoRoot 'assets') -Destination $portable -Recurse
     $zip=Join-Path $dist ('BHopsOptimizer-v'+$Version+'-win-x64.zip')
     Compress-Archive -Path (Join-Path $portable '*') -DestinationPath $zip -Force
     $hashes=foreach($path in @($exe,$zip)){ $hash=Get-FileHash -LiteralPath $path -Algorithm SHA256; $hash.Hash.ToLowerInvariant()+'  '+[IO.Path]::GetFileName($path) }

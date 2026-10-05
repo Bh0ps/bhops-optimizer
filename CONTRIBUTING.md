@@ -8,4 +8,6 @@ Driver offers require the exact supported hardware IDs and Windows architecture/
 
 Use `scripts/Build.ps1` to generate the portable EXE and release checksums. The standalone executable embeds the source modules instead of downloading executable code on launch. Keep version numbers in the entry script, XAML, launcher assembly, and core module manifest consistent when preparing a new release.
 
+Keep titles brief, place explanations in tooltips, and preserve readable preview values plus their technical evidence. Use the editable vector assets and shared theme resources for visual changes. Check normal and narrow window sizes, keyboard focus, expanded preview rows, and the activity drawer. Page transitions must respect Windows animation preferences.
+
 Real adapter/registry mutations should be tested only in a controlled environment with a known recovery path. The ordinary automated suites use fake platform providers and temporary files.

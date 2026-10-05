@@ -11,7 +11,7 @@ foreach($file in $sourceFiles){
     if($errors.Count){throw ('Syntax error in '+$file.Name+': '+($errors.Message -join '; '))}
 }
 [xml]$null=Get-Content -LiteralPath (Join-Path $repoRoot 'src\MainWindow.xaml') -Raw -Encoding UTF8
-foreach($file in @('Core.Tests.ps1','System.Tests.ps1','Drivers.Tests.ps1','Worker.Tests.ps1')){
+foreach($file in @('Core.Tests.ps1','System.Tests.ps1','Drivers.Tests.ps1','Worker.Tests.ps1','Presentation.Tests.ps1','UI.Tests.ps1')){
     & $powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $repoRoot ('tests\'+$file))
     if($LASTEXITCODE -ne 0){throw ($file+' failed.')}
 }

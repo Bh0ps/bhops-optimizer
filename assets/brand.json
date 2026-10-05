@@ -1,0 +1,10 @@
+{
+  "name": "BHops Optimizer",
+  "wordmark": "BHops",
+  "accent": "#6494FF",
+  "background": "#101216",
+  "viewBox": "0 0 64 64",
+  "style": "stroke",
+  "strokeWidth": 5,
+  "mark": "M7 32 A5 5 0 1 0 17 32 A5 5 0 1 0 7 32 Z M17 32 L23 32 L28 18 L36 46 L41 32 L47 32 M47 32 A5 5 0 1 0 57 32 A5 5 0 1 0 47 32 Z"
+}

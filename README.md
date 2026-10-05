@@ -1,6 +1,10 @@
+<img src="assets/logo.svg" width="48" alt="BHops connection mark" />
+
 # BHops Optimizer
 
 A Windows desktop utility for Wi-Fi tuning, practical Windows preferences, and a separate gaming selection. Choose settings, preview the changes, apply them automatically, and restore their original values from a backup.
+
+The v0.2 interface uses a charcoal theme, electric blue accents, original vector icons, and a compact navigation rail. Settings show concise titles with explanatory tooltips. Preview results start with a short summary; expand **View changes** to compare readable current and proposed values. Activity is available in an expandable drawer. Page transitions respect the Windows animation preference.
 
 [Download the latest release](https://github.com/Bh0ps/bhops-optimizer/releases/latest) · [Source](https://github.com/Bh0ps/bhops-optimizer) · [MIT license](LICENSE)
 
@@ -13,6 +17,8 @@ A Windows desktop utility for Wi-Fi tuning, practical Windows preferences, and a
 3. Open **Network**, **System**, or **Gaming** and select the settings you want.
 4. Use **Preview changes**, then **Apply selected**. Administrator approval is requested only for operations that need it.
 5. Use **Diagnostics** to compare short connection tests and **Backups** to undo an operation.
+
+Hover a navigation icon to see its section, or use Tab to move between controls. Hover a setting for its explanation and restart notes. The overview shows the selected adapter, driver and link speed, plus latency and loss from the current session's most recent test. Before a test runs, these measurements remain empty.
 
 The standalone EXE includes its PowerShell source and uses Windows PowerShell 5.1 / .NET Framework already provided with Windows. No Python, package manager, or separate .NET SDK is required. Source users can launch `Start-BHopsOptimizer.cmd` instead.
 
@@ -44,7 +50,7 @@ Privacy choices are optional preferences, not FPS optimizations. Desktop mouse a
 
 Local state is stored in `%LOCALAPPDATA%\BHopsOptimizer\State`. Backups and driver-package exports may contain local device identifiers; they are not uploaded. The EXE extracts its bundled source into a unique runtime folder, hosts the WPF interface, and removes that runtime folder on exit. Keep your state folder if you need Undo.
 
-## Driver support in v0.1.0
+## Automatic driver support
 
 Automatic driver installation currently supports **Windows 11 x64, build 22621 or newer**, with the reviewed **MediaTek MT7922 / RZ616** hardware ID `PCI\VEN_14C3&DEV_0616&SUBSYS_E0CD105B`, using Microsoft Catalog driver **3.6.0.1434**. It will not downgrade an equal or newer installed driver. Other adapters receive a Microsoft Catalog search handoff; no arbitrary package is automatically selected.
 
@@ -101,7 +107,9 @@ The portable EXE is built from the same source in this repository, with the Wind
 .\scripts\Build.ps1
 ```
 
-`dist` contains the standalone EXE, portable ZIP, and checksums. The tests use fake networking/registry/power/driver providers: they cover capability detection, idempotence, exact backups and restore, partial failures, rollback, hardware binding, package/signature guards, restart reporting, worker-path validation, and latency math. They do not apply real tweaks to the test PC. The native interface and read-only inventory/preview are also checked separately.
+`dist` contains the standalone EXE, portable ZIP, and checksums. The tests use fake networking/registry/power/driver providers: they cover capability detection, idempotence, exact backups and restore, partial failures, rollback, hardware binding, package/signature guards, restart reporting, worker-path validation, latency math, and readable preview values. They do not apply real tweaks to the test PC. The native interface and read-only inventory/preview are also checked separately.
+
+Editable branding and the 17-icon vector set live in `assets`. `brand.json` supplies the shared connection-mark geometry; the build regenerates the multi-resolution Windows icon from it. See [assets/README.md](assets/README.md) for vector usage. The original artwork uses the same MIT license as the app.
 
 Developed and tested on Windows 11 x64 with Windows PowerShell 5.1. The source checks Windows 10/11 client capabilities; Windows 10 has not been live-tested. ARM64, Windows Server, and cross-account administrator elevation are not supported by the portable x64 release. GUI workers refuse elevation as a different account so HKCU does not target the wrong user. CLI settings apply to the account running PowerShell.
 

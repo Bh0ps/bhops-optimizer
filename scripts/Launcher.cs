@@ -11,8 +11,8 @@ using System.Management.Automation.Runspaces;
 [assembly: AssemblyDescription("Open-source Windows, gaming and Wi-Fi tuning with backups and undo")]
 [assembly: AssemblyCompany("Bh0ps")]
 [assembly: AssemblyProduct("BHops Optimizer")]
-[assembly: AssemblyVersion("0.1.0.0")]
-[assembly: AssemblyFileVersion("0.1.0.0")]
+[assembly: AssemblyVersion("0.2.0.0")]
+[assembly: AssemblyFileVersion("0.2.0.0")]
 
 internal static class Launcher
 {
@@ -45,12 +45,13 @@ internal static class Launcher
         try
         {
             bool demo = false, smoke = false;
-            string screenshot = null;
+            string screenshot = null, page = "Overview";
             for (int i = 0; i < args.Length; i++)
             {
                 if (args[i] == "--demo") demo = true;
                 else if (args[i] == "--smoke-test") smoke = true;
                 else if (args[i] == "--screenshot" && i + 1 < args.Length) screenshot = Path.GetFullPath(args[++i]);
+                else if (args[i] == "--page" && i + 1 < args.Length) page = args[++i];
                 else throw new ArgumentException("Unknown argument. The EXE opens the UI. Use BHopsOptimizer.ps1 for CLI presets and automation.");
             }
             AssertLocalPath(runDirectory);
@@ -97,6 +98,7 @@ internal static class Launcher
                     if (demo) powershell.AddParameter("Demo");
                     if (smoke) powershell.AddParameter("SmokeTest");
                     if (screenshot != null) powershell.AddParameter("ScreenshotPath", screenshot);
+                    powershell.AddParameter("PreviewPage", page);
                     powershell.Invoke();
                     if (powershell.HadErrors)
                     {
