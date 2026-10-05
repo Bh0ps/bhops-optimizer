@@ -1,0 +1,9 @@
+/dist/
+/work/
+/artifacts/
+*.log
+*.user
+*.tmp
+*.bak
+Thumbs.db
+Desktop.ini
